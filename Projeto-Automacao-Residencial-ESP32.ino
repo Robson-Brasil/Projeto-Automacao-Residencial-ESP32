@@ -7,13 +7,14 @@
                                     ESP8266: http://arduino.esp8266.com/stable/package_esp8266com_index.json,
                                     ESP32  : https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
   Download Board ESP32 (x.x.x):
-  Broker MQTT
+  Broker MQTT, Retain, QoS, KeepAlive
+  OTA -Over-the-Air
   Node-Red / Google Assistant-Nora:  https://smart-nora.eu/
   Para Instalação do Node-Red:       https://nodered.org/docs/getting-started/
   Home Assistant
   Para Instalação do Home Assistant: https://www.home-assistant.io/installation/
   Versão : 2.0 - Release Candidate
-  Última Modificação : 14/06/2025
+  Última Modificação : 18/06/2025
 ******************************************************************************************************************************************/
 
 // =============== IP FIXO ===============
@@ -49,16 +50,6 @@ IPAddress secondaryDNS(8, 8, 8, 8);
 #include "Sensores.h"
 #include "WiFiUtils.h"
 
-// =============== DEFINIÇÕES E CONSTANTES ===============
-// Definições dos pinos dos Relés
-#define RelayPin1 26  // D26 Ligados ao Nora/MQTT
-#define RelayPin2 13  // D13 Ligados ao Nora/MQTT
-#define RelayPin3 14  // D14 Ligados ao Nora/MQTT
-#define RelayPin4 32  // D32 Ligados ao Nora/MQTT
-#define RelayPin5 16  // D16 Ligados ao Nora/MQTT
-#define RelayPin6 17  // D17 Ligados ao MQTT
-#define RelayPin7 18  // D18 Ligados ao MQTT
-#define RelayPin8 19  // D19 Ligados ao MQTT
 
 // LED indicador de WiFi
 #define wifiLed    2  // D2
@@ -90,10 +81,11 @@ Adafruit_BMP085 bmp;
 WiFiClient espClient;          // Cliente WiFi
 PubSubClient mqttClient(espClient); // Cliente MQTT
 
+
 // =============== VARIÁVEIS GLOBAIS ===============
 // Configurações do WiFi
-const char* ssid     = "XXXXXXXXXXX";  // SSID da rede WiFi, não se esqueça de preencher  corretamente aqui
-const char* password = "XXXXXXXXXXX";  // Senha da rede WiFi, não esquecça de preencher corretamente aqui
+const char* ssid     = "VIVOFIBRA-8F58";  // SSID da rede WiFi, não se esqueça de preencher  corretamente aqui
+const char* password = "67656787C9";  // Senha da rede WiFi, não esquecça de preencher corretamente aqui
 
 // Variáveis para armazenar os dados dos sensores
 char str_hum_data[7];        // Umidade
@@ -160,9 +152,9 @@ const float pressaoNivelMar = 1012.0;  // Pressão ao nível do mar em sua local
 const float altitudeNivelMar = 92.0;   // Altitude de referência do seu local
 
 // Configurações do Broker MQTT
-const char* BrokerMQTT  = "192.168.15.160"; // URL do broker MQTT, aqui você coloca o endereço do Broker, seja On Line ou Local
-const char* LoginDoMQTT = "XXXXXXXXXXX";    // Usuário MQTT, não pesqueça de preencher com as credenciais do seu Broker
-const char* SenhaMQTT   = "XXXXXXXXXXX";     // Senha MQTT, não esqueça de preencher com as credenciais do seu Broker
+const char* BrokerMQTT  = "192.168.15.150"; // URL do broker MQTT, aqui você coloca o endereço do Broker, seja On Line ou Local
+const char* LoginDoMQTT = "RobsonBrasil";    // Usuário MQTT, não pesqueça de preencher com as credenciais do seu Broker
+const char* SenhaMQTT   = "S3nh@S3gur@";     // Senha MQTT, não esqueça de preencher com as credenciais do seu Broker
 const int   MQTT_PORT   = 1883;              // Porta padrão do MQTT
 const char* clientID    = "ESP32_Cliente";    // ID único do cliente
 
@@ -500,8 +492,19 @@ void setup() {
   Serial.begin(115200);
   Serial.println("\nIniciando o sistema...");
 
-  // Configura o WiFi primeiro para o OTA funcionar
+  // Configura o WiFi
   setupWiFi();
+
+  // Aguarda conexão WiFi antes de iniciar OTA
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi conectado!");
+  Serial.println(WiFi.localIP());
+
+  // Inicializa OTA somente após WiFi estar pronto
+  setupOTA("ESP32-Automacao");
   
   // Configuração dos pinos dos relés como saída
   pinMode(RelayPin1, OUTPUT);
@@ -537,11 +540,13 @@ void setup() {
 
   // Configura MQTT
   setupMQTT();
+
 }
 
 // =============== EXECUÇÃO ===============
 void loop() {
-  vTaskDelay(portMAX_DELAY); // Loop principal não faz nada, tasks cuidam de tudo
+  ArduinoOTA.handle();
+  vTaskDelay(10 / portTICK_PERIOD_MS); // Pequeno delay para não travar o core
 }
 
 // Task para conexões (WiFi/MQTT) - Core 0

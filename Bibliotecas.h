@@ -13,4 +13,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
+#include "OTAConfig.h"
+
+
+
 #endif // BIBLIOTECAS_H
