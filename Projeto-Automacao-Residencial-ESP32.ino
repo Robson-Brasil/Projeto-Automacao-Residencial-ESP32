@@ -13,8 +13,8 @@
   Para Instalação do Node-Red:       https://nodered.org/docs/getting-started/
   Home Assistant
   Para Instalação do Home Assistant: https://www.home-assistant.io/installation/
-  Versão : 2.0 - Release Candidate
-  Última Modificação : 18/06/2025
+  Versão : 1.0 - Release Candidate
+  Última Modificação : 20/06/2025
 ******************************************************************************************************************************************/
 
 // =============== IP FIXO ===============
@@ -48,8 +48,8 @@ IPAddress secondaryDNS(8, 8, 8, 8);
 #include "TaskCores.h"
 #include "ConstantesTempo.h"
 #include "Sensores.h"
+#include "MQTTParametros.h"
 #include "WiFiUtils.h"
-
 
 // LED indicador de WiFi
 #define wifiLed    2  // D2
@@ -81,11 +81,10 @@ Adafruit_BMP085 bmp;
 WiFiClient espClient;          // Cliente WiFi
 PubSubClient mqttClient(espClient); // Cliente MQTT
 
-
 // =============== VARIÁVEIS GLOBAIS ===============
 // Configurações do WiFi
-const char* ssid     = "VIVOFIBRA-8F58";  // SSID da rede WiFi, não se esqueça de preencher  corretamente aqui
-const char* password = "67656787C9";  // Senha da rede WiFi, não esquecça de preencher corretamente aqui
+const char* ssid     = "xxxxxxxx";  // SSID da rede WiFi, não se esqueça de preencher  corretamente aqui
+const char* password = "xxxxxxxx";  // Senha da rede WiFi, não esquecça de preencher corretamente aqui
 
 // Variáveis para armazenar os dados dos sensores
 char str_hum_data[7];        // Umidade
@@ -153,8 +152,8 @@ const float altitudeNivelMar = 92.0;   // Altitude de referência do seu local
 
 // Configurações do Broker MQTT
 const char* BrokerMQTT  = "192.168.15.150"; // URL do broker MQTT, aqui você coloca o endereço do Broker, seja On Line ou Local
-const char* LoginDoMQTT = "RobsonBrasil";    // Usuário MQTT, não pesqueça de preencher com as credenciais do seu Broker
-const char* SenhaMQTT   = "S3nh@S3gur@";     // Senha MQTT, não esqueça de preencher com as credenciais do seu Broker
+const char* LoginDoMQTT = "xxxxxxxxxxx";    // Usuário MQTT, não pesqueça de preencher com as credenciais do seu Broker
+const char* SenhaMQTT   = "xxxxxxxxx";     // Senha MQTT, não esqueça de preencher com as credenciais do seu Broker
 const int   MQTT_PORT   = 1883;              // Porta padrão do MQTT
 const char* clientID    = "ESP32_Cliente";    // ID único do cliente
 
@@ -228,8 +227,8 @@ void setupWiFi() {
 void setupMQTT() {
   mqttClient.setServer(BrokerMQTT, MQTT_PORT);
   mqttClient.setCallback(mqttCallback);
-  // Configura o keep alive do MQTT para 60 segundos
-  mqttClient.setKeepAlive(60);
+  // Configura o keep alive do MQTT para 30 segundos (definido em MQTTParametros.h)
+  mqttClient.setKeepAlive(MQTT_KEEPALIVE);
 }
 
 // Função para reconectar ao MQTT

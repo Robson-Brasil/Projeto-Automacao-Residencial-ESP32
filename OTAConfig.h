@@ -3,9 +3,9 @@
 
 #include <ArduinoOTA.h>
 
-void setupOTA(const char* hostname = "ESP32-Automacao") {
+void setupOTA(const char* hostname = "ESP32-xxxxx") {
   ArduinoOTA.setHostname(hostname);
-  ArduinoOTA.setPassword("S3nh@S3gur@");
+  ArduinoOTA.setPassword("xxxxxxxxx");  //Cria uma senha pra proteção da atualização, e não esquece de trocar o hostname
 
   ArduinoOTA.onStart([]() {
     String type;

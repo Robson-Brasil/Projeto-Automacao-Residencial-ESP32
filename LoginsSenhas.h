@@ -11,8 +11,5 @@ extern const char* SenhaMQTT;
 extern const int   MQTT_PORT;
 extern const char* clientID;
 
-// Login e senha do WebServer
-extern const char* LoginDoHTTP;
-extern const char* SenhaDoHTTP;
 
 #endif // LOGINSSENHAS_H
