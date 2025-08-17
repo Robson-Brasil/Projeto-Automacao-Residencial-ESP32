@@ -3,11 +3,13 @@
 #define VARIAVEISGLOBAIS_H
 
 // Estados dos relés
-enum RelayStates {
+enum RelayStates
+{
     RELAY_OFF = 0,
     RELAY_ON = 1
 };
 
+extern bool Todos;
 extern bool RelayState1;
 extern bool RelayState2;
 extern bool RelayState3;
